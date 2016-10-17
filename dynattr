@@ -1,0 +1,56 @@
+#!/usr/bin/python
+# coding: utf8
+# DynAttr - Dynamic Attributes
+# Author: Ondrej Sika <ondrej@ondrejsika.com>
+# License: MIT <http://ondrejsika.com/license/mit.txt>
+
+import argparse
+
+from flask import Flask, render_template
+
+
+parser = argparse.ArgumentParser('DynAttr - Dynamic Attributes')
+parser.add_argument('--server', action='store_true')
+parser.add_argument('--variable', type=str)
+parser.add_argument('--debug', action='store_true')
+
+args = parser.parse_args()
+
+from redis import Redis
+redis = Redis()
+
+if args.server:
+    import json
+
+    from flask import Flask, render_template
+
+    app = Flask(__name__)
+
+    @app.route('/')
+    def home():
+        return render_template('home.html')
+
+    @app.route('/api/all')
+    def all():
+        keys =  redis.keys('dynattr__*')
+        variables = {}
+        for key in keys:
+            variables[key[9:]] = redis.get(key)
+        return json.dumps(list({'name': name, 'value': value} for name, value in variables.items()))
+
+    @app.route('/api/set/<key>/<val>')
+    def set(key, val):
+        redis.set('dynattr__%s' % key, val)
+        return 'OK'
+
+    @app.route('/api/del/<key>')
+    def api_del(key):
+        redis.delete('dynattr__%s' % key)
+        return 'OK'
+
+    app.debug = args.debug
+    app.run()
+
+if args.variable:
+    print(redis.get('dynattr__%s' % args.variable))
+

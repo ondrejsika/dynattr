@@ -1,0 +1,73 @@
+{% raw %}
+<title>dynattr</title>
+<h1>dynattr</h1>
+<hr>
+<script src="static/angular.js"></script>
+<script>
+    app = angular.module('app', []);
+    app.controller('MainController', function($scope, $http) {
+        $scope.new = {
+            name: '',
+            value: '',
+        };
+                $http.get('/api/all').success(function(data){
+                    $scope.variables = data;
+                })
+
+        $scope.add = function(){
+            $http.get('/api/set/'+$scope.new.name+'/'+$scope.new.value).success(function(){
+                $scope.new = {
+                    name: '',
+                    value: '',
+                };
+
+                $http.get('/api/all').success(function(data){
+                    $scope.variables = data;
+                })
+            })
+        };
+
+        $scope.update = function(name, value){
+            $http.get('/api/set/'+name+'/'+value).success(function(){
+                $http.get('/api/all').success(function(data){
+                    $scope.variables = data;
+                })
+            })
+        };
+
+        $scope.del = function(name){
+            $http.get('/api/del/'+name).success(function(){
+                $http.get('/api/all').success(function(data){
+                    $scope.variables = data;
+                })
+            })
+        };
+    })
+</script>
+<div ng-app="app" ng-controller="MainController">
+    <table>
+        <tr>
+            <th>variable</th>
+            <th>value</th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <td><input ng-model="new.name"></td>
+            <td><input ng-model="new.value"></td>
+            <td><button ng-click="add()">add</button></td>
+            <td></td>
+        </tr>
+        <tr ng-repeat="variable in variables">
+            <td><input ng-model="variable.name"></td>
+            <td><input ng-model="variable.value"></td>
+            <td><button ng-click="update(variable.name, variable.value)">update</button></td>
+            <td><button ng-click="del(variable.name)">del</button></td>
+            <td></td>
+        </tr>
+    </table>
+</div>
+{% endraw %}
+<hr>
+<b>dynattr</b> by <a href="https://ondrejsika.com">Ondrej Sika</a>, sources on <a href="https://github.com/ondrejsika/dynattr">GitHub</a>
+
