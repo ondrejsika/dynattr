@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # coding: utf8
 # DynAttr - Dynamic Attributes
 # Author: Ondrej Sika <ondrej@ondrejsika.com>
